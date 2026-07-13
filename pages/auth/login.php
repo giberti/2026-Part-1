@@ -2,6 +2,7 @@
     session_start();
     require_once "../../database/db.php";
     require_once __DIR__ . '/../../components/config.php';
+    require_once __DIR__ . '/../../database/UsersTable.php';
 
     // Redirect if already logged in
     if (isset($_SESSION['user_id'])) {
@@ -36,13 +37,9 @@
 
             // Validate cookie token
             if (hash_equals($expectedToken, $cookieToken)) {
-                $stmt = $pdo->prepare('
-                    SELECT user_id, title, role, email, first_name
-                    FROM "Users"
-                    WHERE user_id = ?
-                ');
-                $stmt->execute([$cookieId]);
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+                $userTable = new UsersTable();
+                $user = $userTable->getUserById($cookieId);
+
 
                 if ($user) {
                     session_regenerate_id(true);
